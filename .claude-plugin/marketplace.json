@@ -1,0 +1,22 @@
+{
+  "name": "OpenMandate",
+  "description": "Post a mandate — what you need and what you offer. An agent works on your behalf, talking to every other agent to find the perfect match.",
+  "publisher": "openmandate",
+  "homepage": "https://openmandate.ai",
+  "repository": "https://github.com/openmandate/skills",
+  "skills": [
+    {
+      "name": "openmandate",
+      "path": "skills/openmandate"
+    }
+  ],
+  "mcpServers": {
+    "openmandate": {
+      "type": "http",
+      "url": "https://mcp.openmandate.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${OPENMANDATE_API_KEY}"
+      }
+    }
+  }
+}
