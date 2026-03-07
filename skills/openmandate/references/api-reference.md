@@ -14,16 +14,11 @@ Body:
 ```json
 {
   "category": "services",
-  "contact": {
-    "email": "user@example.com",
-    "phone": "+1234567890",
-    "telegram": "@handle",
-    "whatsapp": "+1234567890"
-  }
+  "contact_ids": ["vc_abc123"]
 }
 ```
 - `category` (optional): Freeform string hint. Helps the agent understand your mandate faster. Common values: services, recruiting, partnerships, cofounder, business.
-- `contact` (optional): All sub-fields optional. Email recommended — revealed to counterparty on mutual accept.
+- `contact_ids` (optional): List of verified contact IDs. If omitted, primary verified contact is auto-selected.
 
 Response: Mandate object with `status: "intake"` and `pending_questions` array.
 
@@ -47,7 +42,7 @@ Response:
   "next_token": "mnd_abc123"
 }
 ```
-Note: `contact` is `null` on list responses (only included on get).
+Note: `contact_ids` is included on list responses. Use Get Mandate for full detail.
 
 ### Submit Answers
 ```
@@ -74,6 +69,88 @@ Response: Updated mandate. Check `pending_questions` — if empty and `status` i
 POST /v1/mandates/{mandate_id}/close → 200
 ```
 Permanently closes the mandate. The agent working on your behalf stops.
+
+## Contacts
+
+### List Contacts
+```
+GET /v1/contacts → 200
+```
+Response:
+```json
+{
+  "items": [ /* VerifiedContact objects */ ],
+  "next_token": null
+}
+```
+
+### Add Contact
+```
+POST /v1/contacts → 201
+```
+Body:
+```json
+{
+  "contact_type": "email",
+  "contact_value": "user@example.com",
+  "display_label": "Work"
+}
+```
+- `contact_type` (required): Currently only `"email"` is supported.
+- `contact_value` (required): The email address.
+- `display_label` (optional): Human-readable label.
+
+Response: VerifiedContact with `status: "pending"`. An OTP code is sent to the email.
+
+### Verify Contact
+```
+POST /v1/contacts/{contact_id}/verify → 200
+```
+Body:
+```json
+{
+  "code": "12345678"
+}
+```
+
+### Update Contact
+```
+PATCH /v1/contacts/{contact_id} → 200
+```
+Body:
+```json
+{
+  "display_label": "Personal",
+  "is_primary": true
+}
+```
+
+### Delete Contact
+```
+DELETE /v1/contacts/{contact_id} → 200
+```
+Cannot delete the last verified contact.
+
+### Resend OTP
+```
+POST /v1/contacts/{contact_id}/resend → 200
+```
+Resends verification code for a pending contact. Rate limited.
+
+### Verified Contact Response Shape
+
+```json
+{
+  "id": "vc_...",
+  "contact_type": "email",
+  "contact_value": "user@example.com",
+  "display_label": "Work",
+  "status": "verified",
+  "is_primary": true,
+  "verified_at": "2026-01-01T00:00:00Z",
+  "created_at": "2026-01-01T00:00:00Z"
+}
+```
 
 ## Matches
 
@@ -143,12 +220,7 @@ POST /v1/matches/{match_id}/decline → 200
   "expires_at": "2026-01-15T00:00:00Z",
   "summary": null,
   "match_id": null,
-  "contact": {
-    "email": "...",
-    "telegram": null,
-    "whatsapp": null,
-    "phone": null
-  },
+  "contact_ids": ["vc_abc123"],
   "pending_questions": [ /* QuestionResponse objects */ ],
   "intake_answers": [ /* IntakeAnswerResponse objects */ ]
 }
@@ -236,6 +308,8 @@ Minimum match threshold is 60.
 | 404 | `NOT_FOUND` | Generic not found |
 | 409 | `MANDATE_NOT_IN_INTAKE` | Trying to answer questions on a non-intake mandate |
 | 409 | `ALREADY_RESPONDED` | Already accepted/declined this match |
+| 404 | `CONTACT_NOT_FOUND` | Contact doesn't exist |
+| 409 | `CONTACT_ALREADY_EXISTS` | Duplicate contact |
 | 429 | `RATE_LIMITED` | Too many requests |
 | 500 | `INTERNAL_ERROR` | Server error |
 
@@ -247,4 +321,5 @@ Minimum match threshold is 60.
 | Match | `m_` | `m_xyz789` |
 | Question | `q_` | `q_n8wzy` |
 | API Key | `omk_` | `omk_def456` |
+| Contact | `vc_` | `vc_abc123` |
 | User | `u_` | `u_PJv-MmL7` |

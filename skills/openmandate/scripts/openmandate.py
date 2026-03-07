@@ -15,7 +15,7 @@ import sys
 import urllib.error
 import urllib.request
 
-VERSION = "0.1.0"
+VERSION = "0.4.0"
 USER_AGENT = f"openmandate-openclaw/{VERSION}"
 DEFAULT_BASE_URL = "https://api.openmandate.ai"
 API_KEY_ENV = "OPENMANDATE_API_KEY"
@@ -93,7 +93,6 @@ def cmd_create(args: argparse.Namespace) -> None:
     body: dict = {}
     if args.category:
         body["category"] = args.category
-    body["contact"] = {"email": args.email}
     result = _request("POST", "/v1/mandates", body=body)
     _print_json(result)
 
@@ -154,6 +153,47 @@ def cmd_decline(args: argparse.Namespace) -> None:
     _print_json(result)
 
 
+def cmd_contacts(args: argparse.Namespace) -> None:
+    result = _request("GET", "/v1/contacts")
+    _print_json(result)
+
+
+def cmd_add_contact(args: argparse.Namespace) -> None:
+    body: dict = {"contact_type": "email", "contact_value": args.email}
+    if args.label:
+        body["display_label"] = args.label
+    result = _request("POST", "/v1/contacts", body=body)
+    _print_json(result)
+
+
+def cmd_verify_contact(args: argparse.Namespace) -> None:
+    body: dict = {"code": args.code}
+    result = _request("POST", f"/v1/contacts/{args.contact_id}/verify", body=body)
+    _print_json(result)
+
+
+def cmd_update_contact(args: argparse.Namespace) -> None:
+    body: dict = {}
+    if args.label:
+        body["display_label"] = args.label
+    if args.primary:
+        body["is_primary"] = True
+    if not body:
+        _die("Provide --label or --primary to update.")
+    result = _request("PATCH", f"/v1/contacts/{args.contact_id}", body=body)
+    _print_json(result)
+
+
+def cmd_delete_contact(args: argparse.Namespace) -> None:
+    result = _request("DELETE", f"/v1/contacts/{args.contact_id}")
+    _print_json(result)
+
+
+def cmd_resend_otp(args: argparse.Namespace) -> None:
+    result = _request("POST", f"/v1/contacts/{args.contact_id}/resend")
+    _print_json(result)
+
+
 # ── Argument Parser ──────────────────────────────────────────────────
 
 
@@ -167,7 +207,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     # create
     p_create = sub.add_parser("create", help="Create a new mandate")
-    p_create.add_argument("--email", required=True, help="Contact email (revealed on mutual accept)")
     p_create.add_argument("--category", default=None, help="Optional category hint (e.g. services, recruiting)")
     p_create.set_defaults(func=cmd_create)
 
@@ -211,6 +250,39 @@ def build_parser() -> argparse.ArgumentParser:
     p_decline = sub.add_parser("decline", help="Decline a match")
     p_decline.add_argument("match_id", help="Match ID")
     p_decline.set_defaults(func=cmd_decline)
+
+    # contacts
+    p_contacts = sub.add_parser("contacts", help="List verified contacts")
+    p_contacts.set_defaults(func=cmd_contacts)
+
+    # add-contact
+    p_add = sub.add_parser("add-contact", help="Add an email contact")
+    p_add.add_argument("email", help="Email address to add")
+    p_add.add_argument("--label", default=None, help="Display label (e.g. 'Work email')")
+    p_add.set_defaults(func=cmd_add_contact)
+
+    # verify-contact
+    p_verify = sub.add_parser("verify-contact", help="Verify a contact with OTP code")
+    p_verify.add_argument("contact_id", help="Contact ID (e.g. vc_xxx)")
+    p_verify.add_argument("code", help="8-digit verification code from email")
+    p_verify.set_defaults(func=cmd_verify_contact)
+
+    # update-contact
+    p_upd = sub.add_parser("update-contact", help="Update a contact")
+    p_upd.add_argument("contact_id", help="Contact ID (e.g. vc_xxx)")
+    p_upd.add_argument("--label", default=None, help="New display label")
+    p_upd.add_argument("--primary", action="store_true", help="Set as primary contact")
+    p_upd.set_defaults(func=cmd_update_contact)
+
+    # delete-contact
+    p_del = sub.add_parser("delete-contact", help="Delete a contact")
+    p_del.add_argument("contact_id", help="Contact ID (e.g. vc_xxx)")
+    p_del.set_defaults(func=cmd_delete_contact)
+
+    # resend-otp
+    p_resend = sub.add_parser("resend-otp", help="Resend verification code")
+    p_resend.add_argument("contact_id", help="Contact ID (e.g. vc_xxx)")
+    p_resend.set_defaults(func=cmd_resend_otp)
 
     return parser
 

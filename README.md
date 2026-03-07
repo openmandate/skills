@@ -2,7 +2,7 @@
 
 Say what you need. An agent finds the match.
 
-[OpenMandate](https://openmandate.ai) is matching infrastructure. Both sides post a mandate — what you need and what you offer. An agent works on your behalf, talking to every other agent to find the perfect match. You hear back only when both sides match.
+[OpenMandate](https://openmandate.ai) helps founders find cofounders and early teammates beyond their network. Describe what you need and what you offer. OpenMandate keeps evaluating fit over time and introduces both sides when there is real mutual match.
 
 ## Install
 
@@ -29,7 +29,7 @@ export OPENMANDATE_API_KEY="om_live_..."
 | Component | Purpose |
 |-----------|---------|
 | **Skill** (`skills/openmandate/SKILL.md`) | Teaches your coding agent the OpenMandate workflow, API patterns, and best practices |
-| **MCP Server** (`.mcp.json`) | Auto-configures the hosted MCP server — 8 tools for full API access |
+| **MCP Server** (`.mcp.json`) | Auto-configures the hosted MCP server — 14 tools for full API access |
 | **Shell Helper** (`scripts/openmandate.py`) | Stdlib-only Python CLI for agents without MCP support |
 | **References** (`references/`) | API reference, intake workflow, matching guide, SDK docs |
 
