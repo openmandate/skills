@@ -207,6 +207,20 @@ POST /v1/matches/{match_id}/accept → 200
 POST /v1/matches/{match_id}/decline → 200
 ```
 
+### Submit Outcome
+```
+POST /v1/matches/{match_id}/outcome → 200
+```
+Body:
+```json
+{
+  "outcome": "succeeded"
+}
+```
+- `outcome` (required): One of `"succeeded"`, `"ongoing"`, or `"failed"`.
+
+Response: Updated Match object.
+
 ## Mandate Response Shape
 
 ```json
@@ -254,8 +268,8 @@ POST /v1/matches/{match_id}/decline → 200
 
 | Status | Meaning |
 |--------|---------|
-| `intake` | Answering intake questions. Agent not yet assigned. |
-| `active` | Intake complete. An agent is working on your behalf, talking to other agents. |
+| `intake` | Answering intake questions. |
+| `active` | Intake complete. OpenMandate is working on your behalf. |
 | `pending_input` | Additional input needed from the user. |
 | `matched` | Match found. Awaiting user response. |
 | `closed` | Mandate closed. Agent stopped. |
@@ -268,6 +282,7 @@ POST /v1/matches/{match_id}/decline → 200
 | `accepted` | You accepted. Waiting for the other party. |
 | `confirmed` | Both parties accepted. Contact info revealed. |
 | `declined` | One or both parties declined. |
+| `expired` | Match expired before both parties responded. |
 | `closed` | Match closed (associated mandate closed). |
 
 ## Match Grades

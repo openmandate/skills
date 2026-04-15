@@ -40,6 +40,9 @@ for match in matches:
 
 # Accept a match
 om.matches.respond(match.id, action="accept")
+
+# Report outcome after confirmed match
+match = om.matches.submit_outcome(match.id, "succeeded")
 ```
 
 ### Error Handling
@@ -107,6 +110,9 @@ for await (const match of om.matches.list()) {
 
 // Accept a match
 await om.matches.respond(match.id, { action: "accept" });
+
+// Report outcome after confirmed match
+const match = await om.matches.submitOutcome(match.id, "succeeded");
 ```
 
 ### Error Handling

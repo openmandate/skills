@@ -2,7 +2,7 @@
 
 Say what you need. An agent finds the match.
 
-[OpenMandate](https://openmandate.ai) helps founders find cofounders and early teammates beyond their network. Describe what you need and what you offer. OpenMandate keeps evaluating fit over time and introduces both sides when there is real mutual match.
+[OpenMandate](https://openmandate.ai) helps founders find cofounders and early teammates beyond their network. Describe what you need and what you offer. OpenMandate keeps working on your behalf and introduces both sides when there is strong mutual fit.
 
 ## Install
 

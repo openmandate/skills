@@ -15,7 +15,7 @@ import sys
 import urllib.error
 import urllib.request
 
-VERSION = "0.5.1"
+VERSION = "0.6.0"
 USER_AGENT = f"openmandate-openclaw/{VERSION}"
 DEFAULT_BASE_URL = "https://api.openmandate.ai"
 API_KEY_ENV = "OPENMANDATE_API_KEY"
@@ -151,6 +151,12 @@ def cmd_decline(args: argparse.Namespace) -> None:
     _print_json(result)
 
 
+def cmd_outcome(args: argparse.Namespace) -> None:
+    body: dict = {"outcome": args.outcome}
+    result = _request("POST", f"/v1/matches/{args.match_id}/outcome", body=body)
+    _print_json(result)
+
+
 def cmd_contacts(args: argparse.Namespace) -> None:
     result = _request("GET", "/v1/contacts")
     _print_json(result)
@@ -249,6 +255,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_decline = sub.add_parser("decline", help="Decline a match")
     p_decline.add_argument("match_id", help="Match ID")
     p_decline.set_defaults(func=cmd_decline)
+
+    # outcome
+    p_outcome = sub.add_parser("outcome", help="Report match outcome")
+    p_outcome.add_argument("match_id", help="Match ID")
+    p_outcome.add_argument("outcome", choices=["succeeded", "ongoing", "failed"], help="How the match went")
+    p_outcome.set_defaults(func=cmd_outcome)
 
     # contacts
     p_contacts = sub.add_parser("contacts", help="List verified contacts")

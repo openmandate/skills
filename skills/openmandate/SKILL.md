@@ -5,12 +5,12 @@ description: >-
   Use when creating mandates, answering intake questions, reviewing matches,
   or integrating OpenMandate into applications. Works via MCP tools (preferred),
   Python/JS SDKs, or the bundled shell helper. Requires OPENMANDATE_API_KEY.
-version: 0.5.1
+version: 0.6.0
 homepage: https://openmandate.ai
 license: MIT
 metadata:
   author: openmandate
-  version: "0.5.1"
+  version: "0.6.0"
   openclaw:
     emoji: "handshake"
     requires:
@@ -24,7 +24,7 @@ metadata:
 
 # OpenMandate
 
-Post a mandate — what you need and what you offer. OpenMandate keeps evaluating fit over time and introduces both sides when there is real mutual match.
+Post a mandate — what you need and what you offer. OpenMandate keeps working on your behalf and introduces both sides when there is strong mutual fit.
 
 ## Setup
 
@@ -40,7 +40,7 @@ If `OPENMANDATE_API_KEY` is not set, stop and ask the user to create one at http
 
 ## How to Interact with OpenMandate
 
-**Preferred: MCP tools.** If your coding agent supports MCP, configure the OpenMandate MCP server ([setup guide](https://github.com/openmandate/skills#mcp-setup)). You get 14 tools: `list_contacts`, `add_contact`, `verify_contact`, `update_contact`, `delete_contact`, `resend_otp`, `create_mandate`, `get_mandate`, `list_mandates`, `submit_answers`, `close_mandate`, `list_matches`, `get_match`, `respond_to_match`. Use them directly.
+**Preferred: MCP tools.** If your coding agent supports MCP, configure the OpenMandate MCP server ([setup guide](https://github.com/openmandate/skills#mcp-setup)). You get 15 tools: `list_contacts`, `add_contact`, `verify_contact`, `update_contact`, `delete_contact`, `resend_otp`, `create_mandate`, `get_mandate`, `list_mandates`, `submit_answers`, `close_mandate`, `list_matches`, `get_match`, `respond_to_match`, `submit_outcome`. Use them directly.
 
 **Fallback: Shell helper.** For agents without MCP support, use the bundled Python script:
 
@@ -55,9 +55,9 @@ No pip dependencies. Stdlib only. Python 3.8+.
 ## Workflow
 
 ```
-check/add contacts → create mandate (want + offer) → answer follow-up questions (1-2 rounds) → mandate goes active
-→ OpenMandate keeps evaluating fit → match found → you get notified → review match
-→ accept or decline → if both accept, contact info revealed
+check/add contacts → create mandate (want + offer) → answer follow-up questions → mandate goes active
+→ OpenMandate keeps working on your behalf → match found → you get notified → review match
+→ accept or decline → if both accept, contact info revealed → report outcome
 ```
 
 Before creating a mandate, ensure the user has at least one verified contact. Use `list contacts` to check. If none exist, use `add-contact` to add an email and `verify-contact` with the OTP code.
@@ -84,6 +84,7 @@ All tools are prefixed with `openmandate_`:
 | `openmandate_list_matches` | List all matches. |
 | `openmandate_get_match` | Get match details — grade, strengths, concerns. Contact info after mutual accept. |
 | `openmandate_respond_to_match` | Accept or decline a match. Pass `action`: `"accept"` or `"decline"`. |
+| `openmandate_submit_outcome` | Report how a confirmed match went. Pass `outcome`: `"succeeded"`, `"ongoing"`, or `"failed"`. |
 
 ## Shell Commands Reference
 
@@ -138,6 +139,7 @@ python3 {baseDir}/scripts/openmandate.py matches               # List all matche
 python3 {baseDir}/scripts/openmandate.py match m_xyz789        # Get match details
 python3 {baseDir}/scripts/openmandate.py accept m_xyz789       # Accept a match
 python3 {baseDir}/scripts/openmandate.py decline m_xyz789      # Decline a match
+python3 {baseDir}/scripts/openmandate.py outcome m_xyz789 succeeded  # Report match outcome
 ```
 
 ## Full Example (Shell)
@@ -163,22 +165,24 @@ python3 {baseDir}/scripts/openmandate.py answer mnd_abc123 '[
 ]'
 # → status: "active", pending_questions: [] — intake done
 
-# 5. Check for matches (user will be emailed when one is found)
+# 4. Check for matches (user will be emailed when one is found)
 python3 {baseDir}/scripts/openmandate.py matches
 
-# 6. Review and respond
+# 5. Review and respond
 python3 {baseDir}/scripts/openmandate.py match m_xyz789
 python3 {baseDir}/scripts/openmandate.py accept m_xyz789
 
-# 7. After both accept, check for revealed contact
+# 6. After both accept, check for revealed contact
 python3 {baseDir}/scripts/openmandate.py match m_xyz789
 # → contact: {email: "bob@agency.com"}
+
+# 7. Report how it went
+python3 {baseDir}/scripts/openmandate.py outcome m_xyz789 succeeded
 ```
 
 ## Tips
 
 - The user gets emailed when a match is found. No need to poll.
-- Intake typically takes 2-3 rounds. OpenMandate adapts based on answer quality.
-- Detailed answers → fewer rounds, better matches. Vague answers → more follow-ups.
+- OpenMandate may ask follow-up questions. Detailed answers lead to better matches.
 - Matches are graded: Good Match, Strong Match, or Exceptional Match. Review strengths and concerns before accepting.
 - For SDK usage patterns and API reference, see the `references/` directory.

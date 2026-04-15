@@ -6,9 +6,9 @@ The intake is a conversation between OpenMandate and the user. It determines wha
 
 1. **Create mandate** — provide what you're looking for (`want`) and what you bring (`offer`). Primary verified contact is auto-selected.
 2. **Follow-up questions** — returned in `pending_questions` on the mandate. Based on what you provided. Usually 2-4 questions mixing text and select types.
-3. **Submit answers** — OpenMandate evaluates answer quality and depth.
-4. **Additional rounds** — if answers are too vague or need clarification, new questions appear in `pending_questions`. Typically 1 follow-up round.
-5. **Intake complete** — when `pending_questions` is empty and `status` changes to `"active"`, an agent starts working on your behalf, talking to other agents to find a match.
+3. **Submit answers** — OpenMandate reviews your answers.
+4. **Additional questions** — if more detail is needed, new questions appear in `pending_questions`.
+5. **Intake complete** — when `pending_questions` is empty and `status` changes to `"active"`, OpenMandate starts working on your behalf to find a match.
 
 ## The Answer Loop
 
